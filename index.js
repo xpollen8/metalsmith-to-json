@@ -10,6 +10,7 @@ module.exports = function( options ) {
         createIndexes        = options.createIndexes || false,          // Specify whether or not to create indexes of the accumulated files
         indexPaths           = options.indexPaths || false,             // Specify paths to source folders with content to index
         onlyOutputIndex      = options.onlyOutputIndex || false,        // Specify if whether or not to only output the index file for each indexPath
+        inputFieldNamesOutput = options.inputFieldNamesOutput || null,  // Name output file from field found in input file?
         stripHTML            = options.stripHTML || false,              // Specify whether or not to strip html tags from contents
         stripHTMLOptions     = options.stripHTMLOptions || {
             tables: true,
@@ -29,7 +30,9 @@ module.exports = function( options ) {
             
             data.contents       = new Buffer( circularJSON.stringify( data ), 'utf8' );
 
-            let filepath        = key.replace('.html', '.json');
+            let filepath        = options.inputFieldNamesOutput && data[options.inputFieldNamesOutput]
+                                ? data[options.inputFieldNamesOutput] + '.json'
+                                : key.replace('.html', '.json');
             files[filepath]     = data;
 
             delete files[key];

@@ -42,14 +42,15 @@ When using the indexes option an index file will be created with the same name a
 
 ## Options
 
-Metalsmith to json takes four options.
+Metalsmith to json may take these options.
 
 1. outputPath (string) : A string representing the path you'd like the json files to be output to.
 2. createIndexes (boolean) : A boolean to tell metalsmith to json whether or not you'd like to generate indexes.
 3. indexPaths (array) : An array of paths for metalsmith to json to generate indexes from.
 4. onlyOutputIndex (boolean) : A boolean to tell metalsmith to only output the index file for each specified indexPath.
 5. stripHTML (boolean) : A boolean to tell metalsmith-to-json to strip html tags
-6. stripHTMLOptions (object) : Options from [html-to-text](https://github.com/werk85/node-html-to-text) - defaults: 
+6. inputFieldNamesOutput (string): When given, if this data field is found within an input file, its value will be used as the basename of the output file.
+7. stripHTMLOptions (object) : Options from [html-to-text](https://github.com/werk85/node-html-to-text) - defaults: 
 ```js
 {
     tables: true,
