@@ -38,19 +38,24 @@ module.exports = function( options ) {
             
             data.contents       = new Buffer( circularJSON.stringify( data ), 'utf8' );
 
-            const haveSlug = options.magicSlug && data['slug'] ? true : false;
-            const haveTitle = options.magicSlug && data['title'] ? true : false;
-            let filename = haveSlug ? data['slug'] : (haveTitle ? data['title'] : undefined)
-            if (filename === key.replace('.html', '')) {
-              filename = undefined;
+            if (key.includes('.')) {
+              const inBound = key.split('/', 2);
+              const inDir = inBound[0];
+              const inFile = inBound[1].replace('.html', '');
+              const haveSlug = options.magicSlug && data['slug'] ? true : false;
+              const haveTitle = options.magicSlug && data['title'] ? true : false;
+              let filename = haveSlug ? data['slug'] : (haveTitle ? data['title'] : undefined)
+              let filepath = (filename ? slugify(filename) : inFile) + '.json'
+              if (options.outputPath) {
+                filepath = options.outputPath + '/' + filepath;
+              } else {
+                filepath = inDir + '/' + filepath;
+              }
+              files[filepath]     = data;
+              delete files[key];
+            } else {
+              files[key] = data;
             }
-            let filepath = filename ? slugify(filename) + '.json' : key.replace('.html', '.json')
-            if (options.outputPath && !filepath.match(options.outputPath)) {
-              filepath = outputPath + '/' + filepath;
-            }
-            files[filepath]     = data;
-
-            delete files[key];
 
         });
 
