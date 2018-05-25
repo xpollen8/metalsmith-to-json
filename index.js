@@ -4,13 +4,21 @@ const _ = require('lodash');
 const circularJSON = require('circular-json');
 const htmlToText = require('html-to-text');
 
+const _slugify_strip_re = /[^\w\s-]/g;
+const _slugify_hyphenate_re = /[-\s]+/g;
+function slugify(s) {
+  s = s.replace(_slugify_strip_re, '').trim().toLowerCase();
+  s = s.replace(_slugify_hyphenate_re, '-');
+  return s;
+}
+
 module.exports = function( options ) {
 
     let outputPath           = options.outputPath || null,              // Specify a path (string) to put the json files eg. /api
         createIndexes        = options.createIndexes || false,          // Specify whether or not to create indexes of the accumulated files
         indexPaths           = options.indexPaths || false,             // Specify paths to source folders with content to index
         onlyOutputIndex      = options.onlyOutputIndex || false,        // Specify if whether or not to only output the index file for each indexPath
-        inputFieldNamesOutput = options.inputFieldNamesOutput || null,  // Name output file from field found in input file?
+        magicSlug            = options.magicSlug || false,              // Use title/slug field from input & lowercase and strip non-alpha to form filename?
         stripHTML            = options.stripHTML || false,              // Specify whether or not to strip html tags from contents
         stripHTMLOptions     = options.stripHTMLOptions || {
             tables: true,
@@ -30,9 +38,16 @@ module.exports = function( options ) {
             
             data.contents       = new Buffer( circularJSON.stringify( data ), 'utf8' );
 
-            let filepath        = options.inputFieldNamesOutput && data[options.inputFieldNamesOutput]
-                                ? data[options.inputFieldNamesOutput] + '.json'
-                                : key.replace('.html', '.json');
+            const haveSlug = options.magicSlug && data['slug'] ? true : false;
+            const haveTitle = options.magicSlug && data['title'] ? true : false;
+            let filename = haveSlug ? data['slug'] : (haveTitle ? data['title'] : undefined)
+            if (filename === key.replace('.html', '')) {
+              filename = undefined;
+            }
+            let filepath = filename ? slugify(filename) + '.json' : key.replace('.html', '.json')
+            if (options.outputPath && !filepath.match(options.outputPath)) {
+              filepath = outputPath + '/' + filepath;
+            }
             files[filepath]     = data;
 
             delete files[key];
